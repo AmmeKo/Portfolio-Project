@@ -1,17 +1,17 @@
 # Live Project - Tech Academy
 
 ## Introduction
-For my last two weeks at the Tech Academy, I worked in a team with a group of my peers developing a full scale MVC Web Application in Python using Django. During this time, our group finished up tasks on an ongoing project, [DataScrape](#DataScrape-Stories), and began work on a new project, [TravelScrape](#TravelScrape-Stories). Working on a pre-existing codebase with the DataScrape project was a great opportunity to learn about fixing bugs, cleaning up code, and adding new features to existing apps. Later on, developing the TravelScrape project from scratch, allowed me to practice the proper setup for apps in Django and thorough commenting both in my code and commits so that future developers picking up my work would be able to do so more efficiently. Throughout the Live Project experience, the stories I worked on focused primarily on back-end functionality though I was also able to work with some front-end styling tasks in order to improve the user experience. Over the two-week sprint I had the opportunity to work in a team learning valuable professional [skills](#other-skills-learned) that I'm confident I will utilize in future endeavors.
+For my last two weeks at the Tech Academy, I worked in a team with a group of my peers developing a full scale MVC Web Application in Python using Django. During this time, our group finished up tasks on an ongoing project, [DataScrape](#DataScrape-Stories), and began work on a new project, [TravelScrape](#TravelScrape-Stories). Working on a pre-existing codebase with the DataScrape project was a great opportunity to learn about fixing bugs, cleaning up code, and adding new features to existing apps. Later on, developing the TravelScrape project from scratch, allowed me to practice the proper setup for apps in Django and thorough commenting both in my code and commits so that future developers picking up my work would be able to do so more efficiently. Throughout the Live Project experience, the stories I worked on focused primarily on back-end functionality though I was also able to work with some front-end styling tasks in order to improve the user experience. Over the two-week sprint I had the opportunity to work in a team learning valuable professional [skills](#additional-skills-learned) that I'm confident I will utilize in future endeavors.
 
 Below are descriptions of the stories I worked on in both projects along with relevant code snippets. Full code files for the snippets as well as a few additional supporting files I worked on are also available in this repo.
 
-*Jump to: [TravelScape Stories](#weather-project), [Additional Skills](#additional-skills-learned)*
+*Jump to: [TravelScape Stories](#TravelScrape-Stories), [Additional Skills](#additional-skills-learned)*
 
 
 
 ## DataScrape Stories
 * [Weather App Functionality](#weather-app-functionality)
-* [News App DevelopmentI](#news-app-developmenti)
+* [News App Development](#news-app-development)
 
 
 
@@ -125,7 +125,7 @@ The initial screen brought up by the user presents a form for entering their loc
 Once returned, the screen gives the current weather information for their location and changes the weather icons in the heading to match.
 ![Returned Screen](./screenshots/weather-returned.png)
 
-*Jump to: [Top of Page](#live-project)*
+*Jump to: [Top of Page](#live-project-Tech-Academy)*
 
 
 
@@ -234,7 +234,7 @@ The HTML file contains a for loop to go through and present each result therefor
 ![Returned Screen](./screenshots/news-returned.png)
 Above these returned results is also the returned form still containing the entered search parameters.
 
-*Jump to: [Top of Page](#live-project)*
+*Jump to: [Top of Page](#live-project-Tech-Academy)*
 
 
 
@@ -325,7 +325,7 @@ The initial page displays the search form with an image explaining warning level
 The returned page includes in-line styling to allow for the warning color variable to alter the background of the title line to match the warning level given.
 ![Returned Screen](./screenshots/travel-returned.png)
 
-*Jump to: [Top of Page](#live-project)*
+*Jump to: [Top of Page](#live-project-Tech-Academy)*
 
 
 
@@ -339,4 +339,4 @@ The returned page includes in-line styling to allow for the warning color variab
     * The WeatherApp story was initially meant to utilize the location under the user profile of the user. However, there was a bug that prevented the user from editing any of their profile. We moved forward with the WeatherApp utilizing user imput in order to make the app functional until the bug could be fixed. 
     * No one on the project was familiar with the State Department's API. After some research, I was able to find the resource to get up-to-date travel advisories in an xml format.
 
-*Jump to: [Top of Page](#live-project)*
+*Jump to: [Top of Page](#live-project-Tech-Academy)*

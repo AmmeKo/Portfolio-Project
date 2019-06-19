@@ -244,7 +244,7 @@ Above these returned results is also the returned form still containing the ente
 
 
 ### Travel Advisory App
-As our team was the first to work on the TravelScrape project, there was no pre-existing code. I was tasked with developing an app to allow users to search for a country in order to see any current travel advisories from the US State Department. The app was required to display an explanation of the different warning levels as well as the color of the warning level currently given for the search county. In addition, it provides a brief description of situation from the State Department and a link to the full travel advisory page for futher information and resources. Using information provided from travel.state.gov, the app parses the data returned in an xml format from the site based on the search criteria and presents it to the user.
+As our team was the first to work on the TravelScrape project, there was no pre-existing code. I was tasked with developing an app to allow users to search for a country in order to see any current travel advisories from the US State Department. The app was required to display an explanation of the different warning levels as well as the color of the warning level currently given for the search county. In addition, it provides a brief description of the situation from the State Department and a link to the full travel advisory page for futher information and resources. Using information provided from travel.state.gov, the app parses the data returned in an xml format from the site based on the search criteria and presents it to the user.
 
 
         # validating and cleaning data for use
@@ -332,11 +332,11 @@ The returned page includes in-line styling to allow for the warning color variab
 ## Additional Skills Learned
 * Working with a team of developers to assist each other in identifying bugs within existing code and to the improve usability of an application
 * Utilizing project management programs to improve project flow
-* Utilizing version control, regularly committing work, and thoroughly commenting code.
+* Utilizing version control, regularly committing work, and thoroughly commenting code
 * Learning from other developers by observing their workflow, asking questions, and hearing their feedback at our daily standups  
 * Practice working with a remote team and utilizing communication tools (particularly Slack)
 * The importance of flexibility, self-motivation, continuous research, and agile design
-    * The WeatherApp story was initially meant to utilize the location under the user profile of the user. However, there was a bug that prevented the user from editing any of their profile. We moved forward with the WeatherApp utilizing user imput in order to make the app functional until the bug could be fixed. 
+    * The WeatherApp story was initially meant to utilize the location under the user's profile. However, there was a bug that prevented the user from editing any of their profile or entering a preferred location. We moved forward with the WeatherApp utilizing user imput in order to make the app functional until the bug could be fixed. 
     * No one on the project was familiar with the State Department's API. After some research, I was able to find the resource to get up-to-date travel advisories in an xml format.
 
 *Jump to: [Top of Page](#live-project---tech-academy)*

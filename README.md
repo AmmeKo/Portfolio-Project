@@ -125,7 +125,7 @@ The initial screen brought up by the user presents a form for entering their loc
 Once returned, the screen gives the current weather information for their location and changes the weather icons in the heading to match.
 ![Returned Screen](./screenshots/weather-returned.png)
 
-*Jump to: [Top of Page](#live-project-Tech-Academy)*
+*Jump to: [Top of Page](#live-project---tech-academy)*
 
 
 
@@ -234,11 +234,11 @@ The HTML file contains a for loop to go through and present each result therefor
 ![Returned Screen](./screenshots/news-returned.png)
 Above these returned results is also the returned form still containing the entered search parameters.
 
-*Jump to: [Top of Page](#live-project-Tech-Academy)*
+*Jump to: [Top of Page](#live-project---tech-academy)*
 
 
 
-## TravelScrape Projects
+## TravelScrape Stories
 * [Travel Advisory App](#travel-advisory-app)
 
 
@@ -325,7 +325,7 @@ The initial page displays the search form with an image explaining warning level
 The returned page includes in-line styling to allow for the warning color variable to alter the background of the title line to match the warning level given.
 ![Returned Screen](./screenshots/travel-returned.png)
 
-*Jump to: [Top of Page](#live-project-Tech-Academy)*
+*Jump to: [Top of Page](#live-project---tech-academy)*
 
 
 
@@ -339,4 +339,4 @@ The returned page includes in-line styling to allow for the warning color variab
     * The WeatherApp story was initially meant to utilize the location under the user profile of the user. However, there was a bug that prevented the user from editing any of their profile. We moved forward with the WeatherApp utilizing user imput in order to make the app functional until the bug could be fixed. 
     * No one on the project was familiar with the State Department's API. After some research, I was able to find the resource to get up-to-date travel advisories in an xml format.
 
-*Jump to: [Top of Page](#live-project-Tech-Academy)*
+*Jump to: [Top of Page](#live-project---tech-academy)*

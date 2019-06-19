@@ -1,0 +1,72 @@
+{% extends 'base.html' %} <!-- here we are saying that we will be rendering our content inside of the base.html template -->
+
+{% block title %}| News{% endblock %} <!-- This will appear in the browser tab -->
+
+{% block content %} <!-- block content defines where the content will be rendered on the page according to where we placed the same tags in the body of base.html-->
+{% include "nav.html" %}
+
+<h1 class="news-heading">Find News From Around the Web!</h1>
+
+<h3>{{ error }}</h3>
+
+<form class="center" method="post">
+    {% csrf_token %}
+    <div class="news-formbox-2">
+        <p class="newsform-sublabel center">**{{ form.key_words.label }}: </p>
+        <p class="center">{{ form.key_words }}</p>
+    </div>
+    <div class="news-formbox-2">
+        <p class="news-form-label center">Date Range:</p>
+        <p class="center">{{ form.date_earliest.label }}: {{ form.date_earliest }}</p>
+        <p class="center">{{ form.date_latest.label }}: {{ form.date_latest }}</p>
+    </div>
+    <div class="news-formbox">
+        <p class="news-form-label center">**{{ form.sources.label }}:</p>
+        {% for checkbox in form.sources %}
+            <div>
+              {{ checkbox }}
+            </div>
+        {%endfor %}
+    </div>
+    <div class="news-formbox">
+        <p class="newsform-sublabel center">{{ form.sort.label }}:</p>
+        {% for radio in form.sort %}
+            <div>
+                <p class="center">{{ radio }}</p>
+            </div>
+        {%endfor %}
+    </div>
+    <div class="news-formbox-2">
+        <p class="center">{{ form.search_type.label }}: &nbsp;&nbsp;{{ form.search_type }}</p>
+    </div>
+    <br>
+    <div class="backdrop">
+        <input class="news-button" type="submit" value="Find News Stories!">
+    </div>
+    <p>**Search requires Key Words and/or News Source selection.</p>
+</form>
+
+<h2 class="news-heading">{{ message }}</h2>
+<h3 class="news-chevron center">Top Results:</h3>
+
+{% for item in list %}
+<div id="news-container">
+<ul>
+    <div class="news-item">
+    <li>
+        <p class="news-form-label">
+            Article {{ item.0 }} --
+            <a href="{{ item.4 }}" target="_blank">{{ item.1 }}</a>
+        </p>
+        <p>Published: {{ item.5 }}</p>
+        <p>{{ item.2 }} <a href="{{ item.4 }}" target="_blank">...Read More...</a></p>
+        <p><img class="news-image" src="{{ item.3 }}"></p>
+    </li>
+    </div>
+</ul>
+</div>
+{% endfor %}
+
+<p>Search Powered by ApiNews.org</p>
+
+{% endblock %}

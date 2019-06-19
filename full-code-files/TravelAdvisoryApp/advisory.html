@@ -1,0 +1,69 @@
+<head>
+    <link rel="stylesheet" href="../static/css/AdvisoryApp.css">
+</head>
+
+{% extends "base.html" %}
+
+{% block content %}
+{% include "nav.html" %}
+
+
+<h1 class='text-center pt-5'>Travel Advisories</h1>
+
+<h2>Be in the know for your upcoming travels!</h2>
+<p>Find travel advisories from the U.S. State Department for countries around the world.</p>
+
+<img class="main-image" src="../static/images/Travel-advisory-levels.png" alt="Advisory levels">
+
+<div class="container col-8">
+    <form method="POST" class="inline-block">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-sm text-right">
+                <p>{{ form.country.label }}</p>
+            </div>
+            <div class="col-sm text-left">
+                {{ form.country }}
+            </div>
+        </div>
+        <br>
+        {% if error %}
+            <div>
+                <h5>{{ error }}</h5>
+            </div>
+            <br>
+        {% endif %}
+        <div class="row">
+            <div class="col-sm text-center">
+                <button type="submit" class="btn btn-primary">Search for Travel Advisories</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<br>
+<br>
+
+{% if info %}
+<div>
+    <section>
+        <div class="container">
+
+            <div style="color:{{ info.font_color }}; background-color:{{ info.alert_color }}">
+                <h3>Travel Advisory for {{ info.country }}</h3>
+                <h3 >{{ info.title }}</h3>
+            </div>
+            <div>
+                <p>{{ info.description }}</p>
+                <p><a href="{{ info.link }}" target="_blank">Click here for more information!</a></p>
+                <br>
+                <p>Information Last Updated: {{ info.date }}</p>
+            </div>
+
+        </div>
+    </section>
+</div>
+{% endif %}
+
+
+{% endblock content %}

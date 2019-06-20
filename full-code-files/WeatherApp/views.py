@@ -23,8 +23,16 @@ def weather(request):
     elif request.method == 'POST':
         form1 = ZipForm(request.POST)
         form2 = CityForm(request.POST)
-        form1.save()
-        form2.save()
+        
+        # validating and cleaning data for use
+        if form1.is_valid() and form2.is_valid():
+            form_zip = form1.cleaned_data
+            form_city = form2.cleaned_data
+            form1.save()
+            form2.save()
+        else:
+            error = {"invalid_data": "Invalid Entry: Please Re-enter Location Information."}
+            context = {'error': error, 'form1': form1, 'form2': form2}
 
     # Reset the forms
     form1 = ZipForm()
@@ -36,22 +44,27 @@ def weather(request):
     print("ZIP CODE =", zip_code)
     print("CITY IS = ", city_name)
 
+    # base_url variable to store url
+    base_url = "http://api.openweathermap.org/data/2.5/weather"
+
     # Enter API key here - limited attempts in free access so may need to make new account if not working
     api_key = "717773b8d51cee768b8ceb819ad9aeb3"
-    # base_url variable to store url
-    base_url = "http://api.openweathermap.org/data/2.5/weather?units=imperial&"
-    # complete_url variable for user specific url lookup - give zip code entry priority
-    complete_url = base_url + "appid=" + api_key + "&zip=" + str(zip_code) + ",us"
+    units = 'imperial'
+    country = 'us'
+    data = {
+        'units': units,
+        'appid': api_key,
+        'zip': str(zip_code) + ',' + country
+        }
 
-    # get data from the url
-    response = requests.get(complete_url)
+    response = requests.get(base_url, params=data)
 
     # convert json format data into python format data
     x = response.json()
 
     # Now x contains all the url info in dictionary form
     # Check the value of "cod" key isn't 404/400 aka location not found/invalid entry
-    if x["cod"] != "404" and x['cod'] != "400":
+    if response.status_code != 404 and response.status_code != 400:
 
         # Simplifying the calls into the dictionary with y
         y = x['main']
@@ -67,7 +80,7 @@ def weather(request):
         weather_icon = z[0]['icon']
         wind_speed = w['speed']
 
-        icon_url = "http://openweathermap.org/img/w/" + weather_icon + ".png"
+        icon_url = "http://openweathermap.org/img/w/{}.png".format(weather_icon)
 
         # Put it all together into a dictionary
         current_info = {"location": location, "current_temp": current_temp, "current_humidity": current_humidity,
@@ -75,15 +88,19 @@ def weather(request):
         # Create 'context' to return at the end
         context = {'current_info': current_info, 'form1': form1, 'form2': form2}
 
-    # If the Zip Code does return a 404, this prompts it to check the city name entered
+    # If the Zip Code does return a 400/404, this prompts it to check the city name entered
     else:
-        complete_url = base_url + "appid=" + api_key + "&q=" + str(city_name)
         # Get new values based on city name rather than faulty zip code
-        response = requests.get(complete_url)
+        data = {
+        'units': units,
+        'appid': api_key,
+        'q': str(city_name)
+        }
+        response = requests.get(base_url, params=data)
         x = response.json()
 
         # If city name returns info, create context to return to user
-        if x["cod"] != "404" and x['cod'] != '400':
+        if response.status_code != 404 and response.status_code != 400:
             # Simplifying the calls into the dictionary with y
             y = x['main']
             z = x['weather']

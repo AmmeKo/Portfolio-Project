@@ -16,7 +16,7 @@ Below are descriptions of the stories I worked on in both projects along with re
 
 
 ### Weather App Functionality
-The weather app was meant to display the current weather in a given location using data from openweathermap.org. However, it was not working properly as it was unable to gather the correct data from the API and display it. My task was to take the existing code and make it functional. I created a model for storing both the zip code and city name entered by the user. While in its current format, the data doesn't need to be stored and is cleared out at the end of each request, future versions of the app may choose to store location data in order to display multiple cities at once. The app currently relies on user input for location and gives priority to zip code over city name when requesting data from the openweathermap API. 
+The weather app was meant to display the current weather in a given location using data from openweathermap.org. However, it was not working properly as it was unable to gather the correct data from the API and display it. My task was to take the existing code and make it functional. I created a model for storing both the zip code and city name entered by the user. While in its current format, the data doesn't need to be stored and is cleared out at the end of each request, future versions of the app may choose to store location data in order to display multiple cities at once. The app currently relies on user input for location and gives priority to zip code over city name when requesting data from the openweathermap API.
 
     def weather(request):
 
@@ -138,7 +138,7 @@ The weather app was meant to display the current weather in a given location usi
         City.objects.all().delete()
 
         return render(request, "weather/weather.html", context)
-        
+
 The initial screen brought up by the user presents a form for entering their location.
 ![Initial Screen](./screenshots/weather-blank.png)
 Once returned, the screen gives the current weather information for their location and changes the weather icons in the heading to match.
@@ -152,7 +152,7 @@ Once returned, the screen gives the current weather information for their locati
 I was tasked with creating a news app that would display the top articles returned by user-given search parameters using data from newsapi.org. The app creates a url based on the search parameters entered by a user to retrieve a JSON response from the API and then generate a user friendly presentation of the results. The users can choose multiple filters including date published (though this was limited by the free API used for the project), news source, and key words. A news source or key word must be entered or an error explaining this is returned to the user. Each article returned presents the date published, title with a link to the full story, news source, a base description of the story, and an image from the story. The initial page presented shows the results from a default search for top headlines in the USA today.
 
 I created a search form for the user to input the data using multiple widgets. No models were created to store the search criteria.
-    
+
     class SearchForm(forms.Form):
         SOURCE_CHOICES = (('abc-news', 'ABC News'), ('al-jazeera-english', 'Al Jazeera'), ('bbc-news', 'BBC News'),
                         ('cbs-news', 'CBS News'), ('cnn', 'CNN'), ('the-huffington-post', 'Huffington Post'),
@@ -176,23 +176,24 @@ I created a search form for the user to input the data using multiple widgets. N
 ![Initial Screen](./screenshots/news-initial.png)
 Below this form is populated with the results from the default search of top headlines in the USA today.
 
-Upon the user submitting search criteria, the app generates a url and parses the JSON data returned from the API. 
+Upon the user submitting search criteria, the app generates a url and parses the JSON data returned from the API.
 
-        ...Code after determining it is a POST request and validating the data (see the <a href="./full-code-files/NewsApp/views.py">full code files</a> for more detail)...
-        
+
+  <code>...The code below starts after determining there is a POST request and validating the data. See the <a href="./full-code-files/NewsApp/views.py">full code files</a> for more detail...</code>
+
         # set up base_url depending on if it's a headline search or not
         if form['headlines'] == 'True':
             base_url = 'https://newsapi.org/v2/top-headlines'
         else:
             base_url = 'https://newsapi.org/v2/everything'
-        
+
         # sources come in as a list in string form and need to be a string with sources separated by commas
         # parse sources into proper string for url if any were entered
         sources = form['sources']
         if sources != '':
             src_list = ast.literal_eval(sources)
             sources = ','.join(src_list)
-        
+
         # grab the search data
         data = {
             'q': form['key_words'],
@@ -202,12 +203,12 @@ Upon the user submitting search criteria, the app generates a url and parses the
             'sortBy': form['sort'],
             'apiKey': 'b21c9ca0b07c4a1e950b725f85ca4ad2'
             }
-        
+
         # get data from the url
         response = requests.get(base_url, params=data)
         # convert json format data into python format data
         x = response.json()
-        
+
         # check for errors in query to determine response to user
         if response.status_code == 200:  # no errors detected        
             message = 'Your search returned {} results.'.format(str(x['totalResults']))
@@ -232,8 +233,8 @@ Upon the user submitting search criteria, the app generates a url and parses the
         elif response.status_code == 400:  # checking for 3 specific errors to provide proper message to user
             error_message = 'Please enter a keyword and/or select news source.'
             return render(request, 'AppDemoNews/news_data.html', {'form': search_form, 'error': error_message})
-        
-        ...Code continues (see the <a href="./full-code-files/NewsApp/views.py">full code files</a> for more detail)...
+
+  <code>...The code continues (see the <a href="./full-code-files/NewsApp/views.py">full code files</a> for more detail)...
 
 The HTML file contains a for loop to go through and present each result therefore enabling it to cleanly handle a varying number of results based on the search.
 
@@ -270,49 +271,49 @@ Above these returned results is also the returned form still containing the ente
 ### Travel Advisory App
 As our team was the first to work on the TravelScrape project, there was no pre-existing code. I was tasked with developing an app to allow users to search for a country in order to see any current travel advisories from the US State Department. The app was required to display an explanation of the different warning levels as well as the color of the warning level currently given for the search county. In addition, it provides a brief description of the situation from the State Department and a link to the full travel advisory page for futher information and resources. Using information provided from travel.state.gov, the app parses the data returned in an xml format from the site based on the search criteria and presents it to the user.
 
-    ...Code after determining it is a POST request (see the <a href="./full-code-files/TravelAdvisoryApp/views.py">full code files</a> for more detail)...
-            
+  <code>...The code below starts after determining there is a POST request (see the <a href="./full-code-files/TravelAdvisoryApp/views.py">full code files</a> for more detail)...
+
             form_input = CountryForm(request.POST)
-            
+
             # validating and cleaning data for use
             if form_input.is_valid():
                 form = form_input.cleaned_data
             else:
                 error_message = 'Please enter a country name.'
                 return render(request, 'Advisory/advisory.html', {'form': CountryForm(), 'error': error_message})
-            
+
             # grabbing user input for country, alter data to fit - all country names capitalized in url data
             country = form['country'].title()
-            
+
             # url with information from state department on travel warnings
             url = 'https://travel.state.gov/_res/rss/TAsTWs.xml'
             # getting data from url
             r = requests.get(url)
-            
+
             # in case travel.state.gov is down
             if r.status_code != 200:
                 print(r.status_code)
                 error_message = 'The server is currently unavailable. Please try again later. If problem persists, contact administrator.'
                 return render(request, 'Advisory/advisory.html', {'form': CountryForm(), 'error': error_message})
-            
+
             # parsing data into dictionary form (from xml) and
             # grabbing information on the actual countries out of the dictionary for easier access below
             data = xmltodict.parse(r.content)
             x = data['rss']['channel']['item']
-            
+
             # scanning through the dictionary for the country chosen by the user and grabbing that country's data
             country_info = ''
             for item in x:
                 if country in "'+{}+'".format(item['title']):
                     country_info = item
                     break
-            
+
             # in case the country cannot be found
             if country_info == '':
                 error_message = 'No information on \"{}\" could be found at this time. Please check that the ' \
                                 'country name is spelled correctly and try again.'.format(country)
                 return render(request, 'Advisory/advisory.html', {'form': CountryForm(), 'error': error_message})
-            
+
             title_full = country_info['title']
             # removing country name from title so it can be displayed more prominently elsewhere
             title = title_full.replace(country+' - ', '')
@@ -322,7 +323,7 @@ As our team was the first to work on the TravelScrape project, there was no pre-
             # parsing out the long description and grabbing the initial paragraph's text to present to user
             description_long = BeautifulSoup(description_html, features='html.parser')
             description = description_long.p.text
-            
+
             # scanning through the country data info (it's title) to grab the warning level. Levels range from 1-4
             for i in range(1,5):
                 if 'Level {}'.format(i) in country_info['title']:
@@ -337,11 +338,11 @@ As our team was the first to work on the TravelScrape project, there was no pre-
                 }
             alert_color = alert[alert_level]['color']
             alert_font = alert[alert_level]['font']
-            
+
             # compiling data to be sent back to html
             warning_info = {'country': country, 'title': title, 'date': date, 'link': link, 'description': description,
             'alert_color': alert_color, 'font_color': alert_font}
-            
+
             # returning information to be displayed and blank form
             return render(request, 'Advisory/advisory.html', {'form': CountryForm(), 'info': warning_info})
 
@@ -365,7 +366,7 @@ The returned page includes in-line styling to allow for the warning color variab
 * Learning from other developers by observing their workflow, asking questions, and hearing their feedback at our daily standups  
 * Practice working with a remote team and utilizing communication tools (particularly Slack)
 * The importance of flexibility, self-motivation, continuous research, and agile design
-    * The WeatherApp story was initially meant to utilize the location under the user's profile. However, there was a bug that prevented the user from editing any of their profile or entering a preferred location. We moved forward with the WeatherApp utilizing user imput in order to make the app functional until the bug could be fixed. 
+    * The WeatherApp story was initially meant to utilize the location under the user's profile. However, there was a bug that prevented the user from editing any of their profile or entering a preferred location. We moved forward with the WeatherApp utilizing user imput in order to make the app functional until the bug could be fixed.
     * No one on the project was familiar with the State Department's API. After some research, I was able to find the resource to get up-to-date travel advisories in an xml format.
 
 *Jump to: [Top of Page](#live-project---tech-academy)*

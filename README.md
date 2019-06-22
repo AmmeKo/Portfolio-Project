@@ -16,7 +16,7 @@ Below are descriptions of the stories I worked on in both projects along with re
 
 
 ### Weather App Functionality
-The weather app was meant to display the current weather in a given location using data from openweathermap.org. However, it was not working properly as it was unable to gather the correct data from the API and display it. My task was to take the existing code and make it functional. I created a model for storing both the zip code and city name entered by the user. While in its current format, the data doesn't need to be stored and is cleared out at the end of each request, future versions of the app may choose to store location data in order to display multiple cities at once. The app currently relies on user input for location and gives priority to zip code over city name when requesting data from the openweathermap API.
+The weather app was meant to display the current weather in a given location using data from openweathermap.org. However, it was not working properly as it was unable to gather the correct data from the API and display it. My task was to take the existing code and make it functional. I created a model for storing both the zip code and city name entered by the user. While in its current format, the data doesn't need to be stored and is cleared out at the end of each request, future versions of the app may choose to store location data in order to display multiple cities at once. The app currently relies on user input for location and gives priority to zip code over city name when requesting data from the OpenWeatherMap API.
 
     def weather(request):
 
@@ -174,7 +174,7 @@ I created a search form for the user to input the data using multiple widgets. N
         return clean_form
 
 ![Initial Screen](./screenshots/news-initial.png)
-Below this form is populated with the results from the default search of top headlines in the USA today.
+On the screen below this form is populated with the results from the default search of top headlines in the USA today.
 
 Upon the user submitting search criteria, the app generates a url and parses the JSON data returned from the API.
 
@@ -233,8 +233,7 @@ Upon the user submitting search criteria, the app generates a url and parses the
         elif response.status_code == 400:  # checking for 3 specific errors to provide proper message to user
             error_message = 'Please enter a keyword and/or select news source.'
             return render(request, 'AppDemoNews/news_data.html', {'form': search_form, 'error': error_message})
-
-  <code>...The code continues (see the <a href="./full-code-files/NewsApp/views.py">full code files</a> for more detail)...
+  <code>...The code continues (see the <a href="./full-code-files/NewsApp/views.py">full code files</a> for more detail)...</code>
 
 The HTML file contains a for loop to go through and present each result therefore enabling it to cleanly handle a varying number of results based on the search.
 
@@ -248,7 +247,7 @@ The HTML file contains a for loop to go through and present each result therefor
                         <a href="{{ item.4 }}" target="_blank">{{ item.1 }}</a>
                     </p>
                     <p>Published: {{ item.5 }}</p>
-                    <p>{{ item.2 }} <a href="{{ item.4 }}" target="_blank">...Read More...</a></p>
+                    <p>{{ item.2 }} <a href="{{ item.4 }}" target="_ blank">...Read More...</a></p>
                     <p><img class="news-image" src="{{ item.3 }}"></p>
                 </li>
                 </div>
@@ -269,9 +268,9 @@ Above these returned results is also the returned form still containing the ente
 
 
 ### Travel Advisory App
-As our team was the first to work on the TravelScrape project, there was no pre-existing code. I was tasked with developing an app to allow users to search for a country in order to see any current travel advisories from the US State Department. The app was required to display an explanation of the different warning levels as well as the color of the warning level currently given for the search county. In addition, it provides a brief description of the situation from the State Department and a link to the full travel advisory page for futher information and resources. Using information provided from travel.state.gov, the app parses the data returned in an xml format from the site based on the search criteria and presents it to the user.
+As our team was the first to work on the TravelScrape project, there was no pre-existing code. I was tasked with developing an app to allow users to search for a country in order to see any current travel advisories from the US State Department. The app was required to display an explanation of the different warning levels as well as the color of the warning level currently given for the search county. In addition, it provides a brief description of the situation from the State Department and a link to the full travel advisory page for further information and resources. Using information provided from travel.state.gov, the app parses the data returned in an xml format from the site based on the search criteria and presents it to the user.
 
-  <code>...The code below starts after determining there is a POST request (see the <a href="./full-code-files/TravelAdvisoryApp/views.py">full code files</a> for more detail)...
+  <code>...The code below starts after determining there is a POST request (see the <a href="./full-code-files/TravelAdvisoryApp/views.py">full code files</a> for more detail)...</code>
 
             form_input = CountryForm(request.POST)
 
@@ -363,10 +362,10 @@ The returned page includes in-line styling to allow for the warning color variab
 * Working with a team of developers to assist each other in identifying bugs within existing code and to the improve usability of an application
 * Utilizing project management programs to improve project flow
 * Utilizing version control, regularly committing work, and thoroughly commenting code
-* Learning from other developers by observing their workflow, asking questions, and hearing their feedback at our daily standups  
+* Learning from other developers by observing their workflow, asking questions, and hearing their feedback at our daily stand-ups  
 * Practice working with a remote team and utilizing communication tools (particularly Slack)
 * The importance of flexibility, self-motivation, continuous research, and agile design
-    * The WeatherApp story was initially meant to utilize the location under the user's profile. However, there was a bug that prevented the user from editing any of their profile or entering a preferred location. We moved forward with the WeatherApp utilizing user imput in order to make the app functional until the bug could be fixed.
+    * The WeatherApp story was initially meant to utilize the location under the user's profile. However, there was a bug that prevented the user from editing any of their profile or entering a preferred location. We moved forward with the WeatherApp utilizing user input in order to make the app functional until the bug could be fixed.
     * No one on the project was familiar with the State Department's API. After some research, I was able to find the resource to get up-to-date travel advisories in an xml format.
 
 *Jump to: [Top of Page](#live-project---tech-academy)*

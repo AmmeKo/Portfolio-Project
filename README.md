@@ -31,33 +31,48 @@ The weather app was meant to display the current weather in a given location usi
         elif request.method == 'POST':
             form1 = ZipForm(request.POST)
             form2 = CityForm(request.POST)
-            form1.save()
-            form2.save()
+
+            # validating and cleaning data for use
+            if form1.is_valid() and form2.is_valid():
+                form_zip = form1.cleaned_data
+                form_city = form2.cleaned_data
+                form1.save()
+                form2.save()
+            else:
+                error = {"invalid_data": "Invalid Entry: Please Re-enter Location Information."}
+                context = {'error': error, 'form1': form1, 'form2': form2}
 
         # Reset the forms
         form1 = ZipForm()
         form2 = CityForm()
 
-        # Grabs the entry for the city and for the zip code from the database
+        # Grabs the entry for the city and for the zip code - printing to console just to double-check
         city_name = City.objects.filter()[0]
         zip_code = Zip.objects.filter()[0]
+        print("ZIP CODE =", zip_code)
+        print("CITY IS = ", city_name)
+
+        # base_url variable to store url
+        base_url = "http://api.openweathermap.org/data/2.5/weather"
 
         # Enter API key here - limited attempts in free access so may need to make new account if not working
         api_key = "717773b8d51cee768b8ceb819ad9aeb3"
-        # base_url variable to store url - units=imperial converts from default of Kelvin
-        base_url = "http://api.openweathermap.org/data/2.5/weather?units=imperial&"
-        # complete_url variable for user specific url lookup - give zip code entry priority
-        complete_url = base_url + "appid=" + api_key + "&zip=" + str(zip_code) + ",us"
+        units = 'imperial'
+        country = 'us'
+        data = {
+            'units': units,
+            'appid': api_key,
+            'zip': str(zip_code) + ',' + country
+            }
 
-        # get data from the url
-        response = requests.get(complete_url)
+        response = requests.get(base_url, params=data)
 
         # convert json format data into python format data
         x = response.json()
 
         # Now x contains all the url info in dictionary form
         # Check the value of "cod" key isn't 404/400 aka location not found/invalid entry
-        if x["cod"] != "404" and x['cod'] != "400":
+        if response.status_code != 404 and response.status_code != 400:
 
             # Simplifying the calls into the dictionary with y
             y = x['main']
@@ -73,7 +88,7 @@ The weather app was meant to display the current weather in a given location usi
             weather_icon = z[0]['icon']
             wind_speed = w['speed']
 
-            icon_url = "http://openweathermap.org/img/w/" + weather_icon + ".png"
+            icon_url = "http://openweathermap.org/img/w/{}.png".format(weather_icon)
 
             # Put it all together into a dictionary
             current_info = {"location": location, "current_temp": current_temp, "current_humidity": current_humidity,
@@ -81,15 +96,19 @@ The weather app was meant to display the current weather in a given location usi
             # Create 'context' to return at the end
             context = {'current_info': current_info, 'form1': form1, 'form2': form2}
 
-        # If the Zip Code does return a 404, this prompts it to check the city name entered
+        # If the Zip Code does return a 400/404, this prompts it to check the city name entered
         else:
-            complete_url = base_url + "appid=" + api_key + "&q=" + str(city_name)
             # Get new values based on city name rather than faulty zip code
-            response = requests.get(complete_url)
+            data = {
+                'units': units,
+                'appid': api_key,
+                'q': str(city_name)
+                }
+            response = requests.get(base_url, params=data)
             x = response.json()
 
             # If city name returns info, create context to return to user
-            if x["cod"] != "404" and x['cod'] != '400':
+            if response.status_code != 404 and response.status_code != 400:
                 # Simplifying the calls into the dictionary with y
                 y = x['main']
                 z = x['weather']
@@ -106,7 +125,7 @@ The weather app was meant to display the current weather in a given location usi
 
                 icon_url = "http://openweathermap.org/img/w/" + weather_icon + ".png"
                 current_info = {"location": location, "current_temp": current_temp, "current_humidity": current_humidity,
-                "description": description, "icon": icon_url, "wind_speed": wind_speed}
+                                "description": description, "icon": icon_url, "wind_speed": wind_speed}
                 context = {'current_info': current_info, 'form1': form1, 'form2': form2}
 
             # If city name also returns a 404/400, return the error to the user
@@ -118,8 +137,8 @@ The weather app was meant to display the current weather in a given location usi
         Zip.objects.all().delete()
         City.objects.all().delete()
 
-        return render(request, "weather/weather.html", context)       
-
+        return render(request, "weather/weather.html", context)
+        
 The initial screen brought up by the user presents a form for entering their location.
 ![Initial Screen](./screenshots/weather-blank.png)
 Once returned, the screen gives the current weather information for their location and changes the weather icons in the heading to match.
@@ -148,7 +167,7 @@ I created a search form for the user to input the data using multiple widgets. N
         date_latest = forms.DateField(label='To', widget=forms.SelectDateWidget(years=range(2019, datetime.date.today().year+1)), required=False)
         sources = forms.CharField(label='Select News Sources', widget=forms.CheckboxSelectMultiple(choices=SOURCE_CHOICES), required=False)
         sort = forms.CharField(label="Sort By", widget=forms.RadioSelect(choices=SORT_CHOICES), required=False)
-        search_type = forms.CharField(label="Select to search only today's Top Headlines", widget=forms.CheckboxInput, required=False)
+        headlines = forms.CharField(label="Select to search only today's Top Headlines", widget=forms.CheckboxInput, required=False)
 
         def clean(self):
         clean_form = self.cleaned_data
@@ -159,57 +178,62 @@ Below this form is populated with the results from the default search of top hea
 
 Upon the user submitting search criteria, the app generates a url and parses the JSON data returned from the API. 
 
+        ...Code after determining it is a POST request and validating the data (see the <a href="./full-code-files/NewsApp/views.py">full code files</a> for more detail)...
+        
         # set up base_url depending on if it's a headline search or not
-        if form['search_type'] == 'True':
-            base_url = 'https://newsapi.org/v2/top-headlines?'
+        if form['headlines'] == 'True':
+            base_url = 'https://newsapi.org/v2/top-headlines'
         else:
-            base_url = 'https://newsapi.org/v2/everything?'
-
-        # grab the search data
-        key_words = form['key_words']
-        start_date = form['date_earliest']
-        end_date = form['date_latest']
-        sort = form['sort']
-        sources = form['sources']
-
+            base_url = 'https://newsapi.org/v2/everything'
+        
+        # sources come in as a list in string form and need to be a string with sources separated by commas
         # parse sources into proper string for url if any were entered
+        sources = form['sources']
         if sources != '':
             src_list = ast.literal_eval(sources)
             sources = ','.join(src_list)
-
-        api_key = 'b21c9ca0b07c4a1e950b725f85ca4ad2'
-
-        # format full url for query using input
-        url = '{}q={}&from={}&to={}&sources={}&sortBy={}&apiKey={}'\
-            .format(base_url, key_words, start_date, end_date, sources, sort, api_key)
-
+        
+        # grab the search data
+        data = {
+            'q': form['key_words'],
+            'from': form['date_earliest'],
+            'to': form['date_latest'],
+            'sources': sources,
+            'sortBy': form['sort'],
+            'apiKey': 'b21c9ca0b07c4a1e950b725f85ca4ad2'
+            }
+        
         # get data from the url
-        response = requests.get(url)
-
+        response = requests.get(base_url, params=data)
         # convert json format data into python format data
         x = response.json()
-
+        
         # check for errors in query to determine response to user
-        if x['status'] == 'ok':  # no errors detected
-            message = 'Your search returned ' + str(x['totalResults']) + ' results.'
+        if response.status_code == 200:  # no errors detected        
+            message = 'Your search returned {} results.'.format(str(x['totalResults']))
             articles = x['articles']
             art_list = []
-            # setting up an int for index value in articles
-            i = 0
             # iterating through the dictionary of info on the articles for relevant info and putting into list to return
             for article in articles:
-                y = articles[i]
-                title = y['title']
-                description = y['description']
-                image = y['urlToImage']
-                link = y['url']
-                date_pub = datetime.datetime.strptime(y['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
-                date = date_pub.date()
-                info_list = [i+1, title, description, image, link, date]
-                art_list.append(info_list)
-                i = i + 1
+                title = article['title']
+                description = article['description']
+                image = article['urlToImage']
+                link = article['url']
+                try:
+                    date_pub = datetime.datetime.strptime(article['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
+                    date = date_pub.date()
+                except:
+                    date = 'N/A'
+            i = articles.index(article) + 1
+            info_list = [i, title, description, image, link, date]
+            art_list.append(info_list)
             # return form, message, and info on articles to the html page
             return render(request, 'AppDemoNews/news_data.html', {'form': search_form, 'message': message, 'list': art_list})
+        elif response.status_code == 400:  # checking for 3 specific errors to provide proper message to user
+            error_message = 'Please enter a keyword and/or select news source.'
+            return render(request, 'AppDemoNews/news_data.html', {'form': search_form, 'error': error_message})
+        
+        ...Code continues (see the <a href="./full-code-files/NewsApp/views.py">full code files</a> for more detail)...
 
 The HTML file contains a for loop to go through and present each result therefore enabling it to cleanly handle a varying number of results based on the search.
 
@@ -246,75 +270,80 @@ Above these returned results is also the returned form still containing the ente
 ### Travel Advisory App
 As our team was the first to work on the TravelScrape project, there was no pre-existing code. I was tasked with developing an app to allow users to search for a country in order to see any current travel advisories from the US State Department. The app was required to display an explanation of the different warning levels as well as the color of the warning level currently given for the search county. In addition, it provides a brief description of the situation from the State Department and a link to the full travel advisory page for futher information and resources. Using information provided from travel.state.gov, the app parses the data returned in an xml format from the site based on the search criteria and presents it to the user.
 
-
-        # validating and cleaning data for use
-        if form.is_valid():
-            form = form.cleaned_data
-
-        # grabbing user input for country
-        country = form['country']
-        # alter data to fit - all country names capitalized in url data
-        country = country.capitalize()
-
-        # url with information from state department on travel warnings
-        url = 'https://travel.state.gov/_res/rss/TAsTWs.xml'
-
-        # getting data from url and then parsing it into a dictionary form (from xml)
-        r = requests.get(url)
-        data = xmltodict.parse(r.content)
-        # grabbing information on the actual countries out of the dictionary for easier access below
-        x = data['rss']['channel']['item']
-
-        # scanning through the dictionary for the country chosen by the user and grabbing that country's data
-        country_info = ''
-        i = 0
-        for item in x:
-            if country in "'+{}+'".format(x[i]['title']):
-            country_info = x[i]
-            i += 1
-
-        # in case the country cannot be found
-        if country_info == '':
-            error_message = 'No information on {} could be found at this time. Please check that the ' \
-            'country name is spelled correctly and try again.'.format(country)
-            print(error_message)
-            return render(request, 'Advisory/advisory.html', {'form': CountryForm(), 'error': error_message})
-
-        title_full = country_info['title']
-        # removing country name from title so it can be displayed more prominently elsewhere
-        title = title_full.replace(country+' - ', '')
-        date = country_info['pubDate']
-        link = country_info['link']
-        description_html = country_info['description']
-        # parsing out the long description and grabbing the initial paragraph's text to present to user
-        description_long = BeautifulSoup(description_html, features='html.parser')
-        description = description_long.p.text
-
-        # scanning through the country data info (it's title) to grab the warning level. Levels range from 1-4
-        i = 1
-        while i < 5:
-            if 'Level {}'.format(i) in country_info['title']:
-            alert_level = i
-            i += 1
-        # assigning color based on alert level for in-line styling for background and font on the html section
-        if alert_level == 1:
-            alert_color = 'DarkBlue'
-            font_color = 'White'
-        elif alert_level == 2:
-            alert_color = 'Yellow'
-            font_color = 'Black'
-        elif alert_level == 3:
-            alert_color = 'Orange'
-            font_color = 'Black'
-        elif alert_level == 4:
-            alert_color = 'Red'
-            font_color = 'Black'
-
-        warning_info = {'country': country, 'title': title, 'date': date, 'link': link, 'description': description,
-                        'alert_color': alert_color, 'font_color': font_color}
-
-        # returning information to be displayed and blank form
-        return render(request, 'Advisory/advisory.html', {'form': CountryForm(), 'info': warning_info})
+    ...Code after determining it is a POST request (see the <a href="./full-code-files/TravelAdvisoryApp/views.py">full code files</a> for more detail)...
+            
+            form_input = CountryForm(request.POST)
+            
+            # validating and cleaning data for use
+            if form_input.is_valid():
+                form = form_input.cleaned_data
+            else:
+                error_message = 'Please enter a country name.'
+                return render(request, 'Advisory/advisory.html', {'form': CountryForm(), 'error': error_message})
+            
+            # grabbing user input for country, alter data to fit - all country names capitalized in url data
+            country = form['country'].title()
+            
+            # url with information from state department on travel warnings
+            url = 'https://travel.state.gov/_res/rss/TAsTWs.xml'
+            # getting data from url
+            r = requests.get(url)
+            
+            # in case travel.state.gov is down
+            if r.status_code != 200:
+                print(r.status_code)
+                error_message = 'The server is currently unavailable. Please try again later. If problem persists, contact administrator.'
+                return render(request, 'Advisory/advisory.html', {'form': CountryForm(), 'error': error_message})
+            
+            # parsing data into dictionary form (from xml) and
+            # grabbing information on the actual countries out of the dictionary for easier access below
+            data = xmltodict.parse(r.content)
+            x = data['rss']['channel']['item']
+            
+            # scanning through the dictionary for the country chosen by the user and grabbing that country's data
+            country_info = ''
+            for item in x:
+                if country in "'+{}+'".format(item['title']):
+                    country_info = item
+                    break
+            
+            # in case the country cannot be found
+            if country_info == '':
+                error_message = 'No information on \"{}\" could be found at this time. Please check that the ' \
+                                'country name is spelled correctly and try again.'.format(country)
+                return render(request, 'Advisory/advisory.html', {'form': CountryForm(), 'error': error_message})
+            
+            title_full = country_info['title']
+            # removing country name from title so it can be displayed more prominently elsewhere
+            title = title_full.replace(country+' - ', '')
+            date = country_info['pubDate']
+            link = country_info['link']
+            description_html = country_info['description']
+            # parsing out the long description and grabbing the initial paragraph's text to present to user
+            description_long = BeautifulSoup(description_html, features='html.parser')
+            description = description_long.p.text
+            
+            # scanning through the country data info (it's title) to grab the warning level. Levels range from 1-4
+            for i in range(1,5):
+                if 'Level {}'.format(i) in country_info['title']:
+                    alert_level = i
+                    break
+            # assigning color based on alert level for in-line styling for background and font on the html section
+            alert = {
+                1: {'color': 'DarkBlue', 'font': 'White'},
+                2: {'color': 'Yellow', 'font': 'Black'},
+                3: {'color': 'Orange', 'font': 'Black'},
+                4: {'color': 'Red', 'font': 'Black'}
+                }
+            alert_color = alert[alert_level]['color']
+            alert_font = alert[alert_level]['font']
+            
+            # compiling data to be sent back to html
+            warning_info = {'country': country, 'title': title, 'date': date, 'link': link, 'description': description,
+            'alert_color': alert_color, 'font_color': alert_font}
+            
+            # returning information to be displayed and blank form
+            return render(request, 'Advisory/advisory.html', {'form': CountryForm(), 'info': warning_info})
 
 I set up a working widget on home page to access the app.
 ![Homepage](./screenshots/travel-widget.png)

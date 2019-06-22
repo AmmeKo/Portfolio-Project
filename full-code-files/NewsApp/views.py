@@ -23,19 +23,20 @@ def news_data(request):
         # grabbing article info out of response from NewsApi
         articles = x['articles']
         art_list = []
-        i = 0
         # iterating through the dictionary of info on the articles for relevant info and putting into list to return
         for article in articles:
-            y = articles[i]
-            title = y['title']
-            description = y['description']
-            image = y['urlToImage']
-            link = y['url']
-            date_pub = datetime.datetime.strptime(y['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
-            date = date_pub.date()
-            info_list = [i+1, title, description, image, link, date]
+            title = article['title']
+            description = article['description']
+            image = article['urlToImage']
+            link = article['url']
+            try:
+                date_pub = datetime.datetime.strptime(article['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
+                date = date_pub.date()
+            except:
+                date = 'N/A'
+            i = articles.index(article) + 1
+            info_list = [i, title, description, image, link, date]
             art_list.append(info_list)
-            i = i + 1
         # return form, message, and info on articles to the html page
         return render(request, 'AppDemoNews/news_data.html', {'form': search_form, 'message': message, 'list': art_list})
 
@@ -47,72 +48,71 @@ def news_data(request):
         if search_form.is_valid():
             form = search_form.cleaned_data
         else:
-            error_message = 'Unable to process your request. Please try again. If problem persists, contact administrator.'
+            error_message = 'Your search parameters are invalid. Please try again. If problem persists, contact administrator.'
             return render(request, 'AppDemoNews/news_data.html', {'form': search_form, 'error': error_message})
 
         # set up base_url depending on if it's a headline search or not
-        if form['search_type'] == 'True':
-            base_url = 'https://newsapi.org/v2/top-headlines?'
+        if form['headlines'] == 'True':
+            base_url = 'https://newsapi.org/v2/top-headlines'
         else:
-            base_url = 'https://newsapi.org/v2/everything?'
+            base_url = 'https://newsapi.org/v2/everything'
 
-        # grab the search data
-        key_words = form['key_words']
-        start_date = form['date_earliest']
-        end_date = form['date_latest']
-        sort = form['sort']
-        sources = form['sources']
-
+        # sources come in as a list in string form and need to be a string with sources separated by commas
         # parse sources into proper string for url if any were entered
+        sources = form['sources']
         if sources != '':
             src_list = ast.literal_eval(sources)
             sources = ','.join(src_list)
-
-        api_key = 'b21c9ca0b07c4a1e950b725f85ca4ad2'
-
-        # format full url for query using input
-        url = '{}q={}&from={}&to={}&sources={}&sortBy={}&apiKey={}'\
-            .format(base_url, key_words, start_date, end_date, sources, sort, api_key)
-
+        
+        # grab the search data
+        data = {
+            'q': form['key_words'],
+            'from': form['date_earliest'],
+            'to': form['date_latest'],
+            'sources': sources,
+            'sortBy': form['sort'],
+            'apiKey': 'b21c9ca0b07c4a1e950b725f85ca4ad2'
+            }
+        
         # get data from the url
-        response = requests.get(url)
-
+        response = requests.get(base_url, params=data)
         # convert json format data into python format data
         x = response.json()
-
+        
         # check for errors in query to determine response to user
-        if x['status'] == 'ok':  # no errors detected
-            message = 'Your search returned ' + str(x['totalResults']) + ' results.'
+        if response.status_code == 200:  # no errors detected        
+            message = 'Your search returned {} results.'.format(str(x['totalResults']))
             articles = x['articles']
             art_list = []
-            # setting up an int for index value in articles
-            i = 0
             # iterating through the dictionary of info on the articles for relevant info and putting into list to return
             for article in articles:
-                y = articles[i]
-                title = y['title']
-                description = y['description']
-                image = y['urlToImage']
-                link = y['url']
-                date_pub = datetime.datetime.strptime(y['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
-                date = date_pub.date()
-                info_list = [i+1, title, description, image, link, date]
+                title = article['title']
+                description = article['description']
+                image = article['urlToImage']
+                link = article['url']
+                try:
+                    date_pub = datetime.datetime.strptime(article['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
+                    date = date_pub.date()
+                except:
+                    date = 'N/A'
+                i = articles.index(article) + 1
+                info_list = [i, title, description, image, link, date]
                 art_list.append(info_list)
-                i = i + 1
             # return form, message, and info on articles to the html page
             return render(request, 'AppDemoNews/news_data.html', {'form': search_form, 'message': message, 'list': art_list})
 
-        elif x['status'] == 'error':  # checking for 2 main errors to provide proper message to user
-            if x['code'] == 'parametersMissing':
-                error_message = 'Please enter a keyword and/or select news source.'
-            elif x['code'] == 'apiKeyInvalid':
-                error_message = 'Your API Key is invalid. Please go to https://newsapi.org to register.'
-            else:  # this should only occur if the url is faulty
-                error_message = 'Your search is invalid. Please try again. If problem persists, contact administrator.'
+        elif response.status_code == 400:  # checking for 3 specific errors to provide proper message to user
+            error_message = 'Please enter a keyword and/or select news source.'
+            return render(request, 'AppDemoNews/news_data.html', {'form': search_form, 'error': error_message})
+        elif response.status_code == 401:
+            error_message = 'Your API Key is invalid. Please go to https://newsapi.org to register.'
+            return render(request, 'AppDemoNews/news_data.html', {'form': search_form, 'error': error_message})
+        elif response.status_code == 429:
+            error_message = 'Too many requests have been made. Please come back and try your search again later.'
             return render(request, 'AppDemoNews/news_data.html', {'form': search_form, 'error': error_message})
 
-        else:  # if status returns an unknown value - should not occur unless url is faulty
-            error_message = 'Your search is invalid. Please try again. If problem persists, contact administrator.'
+        else:
+            error_message = 'There has been a server error. Please try again. If problem persists, contact administrator.'
             return render(request, 'AppDemoNews/news_data.html', {'form': search_form, 'error': error_message})
 
     return render(request, 'AppDemoNews/news_data.html', {'form': search_form})

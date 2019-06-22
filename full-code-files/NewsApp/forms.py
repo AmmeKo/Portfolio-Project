@@ -16,7 +16,7 @@ class SearchForm(forms.Form):
     date_latest = forms.DateField(label='To', widget=forms.SelectDateWidget(years=range(2019, datetime.date.today().year+1)), required=False)
     sources = forms.CharField(label='Select News Sources', widget=forms.CheckboxSelectMultiple(choices=SOURCE_CHOICES), required=False)
     sort = forms.CharField(label="Sort By", widget=forms.RadioSelect(choices=SORT_CHOICES), required=False)
-    search_type = forms.CharField(label="Select to search only today's Top Headlines", widget=forms.CheckboxInput, required=False)
+    headlines = forms.CharField(label="Select to search only today's Top Headlines", widget=forms.CheckboxInput, required=False)
 
     def clean(self):
         clean_form = self.cleaned_data

@@ -1,23 +1,16 @@
-from django.forms import ModelForm, TextInput
-from .models import Zip, City
+from django import forms
 
 
-class ZipForm(ModelForm):
-    class Meta:
-        model = Zip
-        fields = ('zip',)
-        widgets = {'zip': TextInput(attrs={'class': 'input', 'placeholder': 'Zip Code', 'required': False})}
+class ZipForm(forms.Form):
+    zip = forms.CharField(max_length=5, required=False)    
 
     def clean(self):
         clean_zip = self.cleaned_data
         return clean_zip
 
 
-class CityForm(ModelForm):
-    class Meta:
-        model = City
-        fields = ('city',)
-        widgets = {'city': TextInput(attrs={'class': 'input', 'placeholder': 'City Name', 'required': False})}
+class CityForm(forms.Form):
+    city = forms.CharField(max_length=50, required=False)
 
     def clean(self):
         clean_city = self.cleaned_data
